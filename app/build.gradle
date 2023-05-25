@@ -66,4 +66,7 @@ dependencies {
 
     //glide jetpack compose
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
+
+    //viewmodel compose
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1"
 }
