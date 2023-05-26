@@ -1,5 +1,7 @@
 package com.example.myapplication
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -27,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +42,7 @@ import com.example.myapplication.utils.Utilities
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun FullView(viewModel: MainViewModel) {
     Column(modifier = Modifier
@@ -54,8 +56,9 @@ fun FullView(viewModel: MainViewModel) {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CurrentDevice(device: Model = Model(R.drawable.outline_laptop_24, "Web Browser", "10/4/22", "11/3/22", "Rigewood,United States",true)) {
+fun CurrentDevice(device: Model = Model(R.drawable.outline_laptop_24, "Web Browser", "10/4/22", "2023-05-18T12:20:48.950Z", "Rigewood,United States",true)) {
 
     Card(
         modifier = Modifier
@@ -75,6 +78,7 @@ fun CurrentDevice(device: Model = Model(R.drawable.outline_laptop_24, "Web Brows
 
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherDevices(header: String, viewModel: MainViewModel) {
@@ -152,14 +156,15 @@ fun OtherDevices(header: String, viewModel: MainViewModel) {
             ) {
 
                 itemsIndexed(viewModel.items) { index, data ->
-
+                    if(!data.isCurrentDevice){
                         DeviceRow(data, coroutineScope, viewModel, index,false)
-
-                        Divider(
-                            color = Utilities.background3,
-                            modifier = Modifier.padding(horizontal = 15.dp)
-                        )
                     }
+
+                    Divider(
+                        color = Utilities.background3,
+                        modifier = Modifier.padding(horizontal = 15.dp)
+                    )
+                }
 
             }
 
@@ -254,6 +259,7 @@ fun OtherDevices(header: String, viewModel: MainViewModel) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun DeviceRow(
     data: Model,
@@ -277,9 +283,11 @@ private fun DeviceRow(
         Spacer(modifier = Modifier.width(20.dp))
 
         Column {
+            val CurrentDate = data.updateDate
+            val updateDate = Utilities.convertTimestampToDate(CurrentDate)
 
             Text(
-                text = data.device_Type,
+                text = data.platform,
                 color = Color.White,
                 fontSize = 16.sp,
                 fontFamily = Utilities.font,
@@ -291,7 +299,7 @@ private fun DeviceRow(
                 fontFamily = Utilities.font,
             )
             Text(
-                text = "Last Watched :${data.last_Watched}",
+                text = "Last Watched :$updateDate",
                 color = Color.White,
                 fontSize = 12.sp,
                 fontFamily = Utilities.font,
