@@ -20,14 +20,18 @@ class MainViewModel: ViewModel(){
     private val _items = mutableStateListOf<Model>()
     val items: List<Model> = _items
 
-    fun removeType(type: String, index: Int) {
+    private val _bottomSheetState = MutableStateFlow(false)
+    val bottomSheetState: StateFlow<Boolean> = _bottomSheetState
+
+    fun updateIndex(type: String, index: Int) {
         _type.value = type
         _index.value = index
 
-        when (type) {
-            "All" -> clearItems()
-            "Single" -> removeItemAt(index)
-        }
+
+    }
+
+    fun updateBottomSheetState(state:Boolean) {
+        _bottomSheetState.value = state
     }
 
     init {
@@ -43,8 +47,12 @@ class MainViewModel: ViewModel(){
     }
 
     private fun removeItemAt(index: Int) {
-        if (index in _items.indices) {
-            _items.removeAt(index)
+      _items.removeAt(index)
+    }
+     fun removeItem(type:String,index:Int?){
+        when (type) {
+            "All" -> clearItems()
+            "Single" -> removeItemAt(index!!)
         }
     }
 }

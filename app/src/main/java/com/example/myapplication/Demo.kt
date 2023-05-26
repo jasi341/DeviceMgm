@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -22,22 +22,24 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.utils.Utilities
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun FullView(viewModel: MainViewModel) {
@@ -45,7 +47,7 @@ fun FullView(viewModel: MainViewModel) {
         .fillMaxSize()
         .padding(horizontal = 10.dp)) {
         CurrentDevice()
-        OtherDevices(header = "Not seeing all of your devices? Sign out and sign back in on that device to see it below.", viewModel )
+        OtherDevices(header = "Not seeing all of your devices? Sign out and sign back in on that device to see it below.", viewModel)
 
     }
 
@@ -53,7 +55,7 @@ fun FullView(viewModel: MainViewModel) {
 
 
 @Composable
-fun CurrentDevice(device: Model = Model(R.drawable.outline_laptop_24, "Web Browser", "10/4/22", "11/3/22", "Rigewood,United States")) {
+fun CurrentDevice(device: Model = Model(R.drawable.outline_laptop_24, "Web Browser", "10/4/22", "11/3/22", "Rigewood,United States",true)) {
 
     Card(
         modifier = Modifier
@@ -64,60 +66,8 @@ fun CurrentDevice(device: Model = Model(R.drawable.outline_laptop_24, "Web Brows
             containerColor = Utilities.background2
         )
     ) {
-        Column(modifier = Modifier.wrapContentHeight()) {
-            Text(
-                text = "Current device",
-                color = Color.White,
-                fontSize = 18.sp,
-                fontFamily = Utilities.font,
-                modifier = Modifier.padding(15.dp)
-            )
-            Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 20.dp)) {
-                Icon(
-                    painter = painterResource(id = device.image),
-                    contentDescription =null,
-                    tint = Color.White,
-                    modifier = Modifier
-                        .height(58.dp)
-                        .width(91.dp)
-                )
-                Spacer(modifier = Modifier.width(20.dp))
+        DeviceRow(data = device, isCurrentDevice = device.isCurrentDevice)
 
-                Column {
-
-                    Text(
-                        text = device.device_Type,
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontFamily = Utilities.font,
-                    )
-                    Text(
-                        text = "Date Added :${device.date_Added}",
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        fontFamily = Utilities.font,
-                    )
-                    Text(
-                        text = "Last Watched :${device.last_Watched}",
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        fontFamily = Utilities.font,
-
-                        )
-                    Text(
-                        text = device.location,
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        fontFamily = Utilities.font,
-
-                        )
-
-                }
-
-            }
-
-        }
 
     }
 
@@ -125,12 +75,15 @@ fun CurrentDevice(device: Model = Model(R.drawable.outline_laptop_24, "Web Brows
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherDevices(header: String, viewModel: MainViewModel) {
 
     val coroutineScope = rememberCoroutineScope()
-    val items = remember{ mutableStateListOf<Model>() }
-    items.addAll(listDevice)
+
+    val bottomSheetState = rememberModalBottomSheetState(
+
+    )
 
 
     Column {
@@ -161,7 +114,10 @@ fun OtherDevices(header: String, viewModel: MainViewModel) {
                 )
 
                 Button(
-                    onClick = { },
+                    onClick = {
+                        viewModel.updateBottomSheetState(true)
+                        viewModel.updateIndex("All",-1)
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Utilities.background3),
 
                     modifier = Modifier
@@ -180,7 +136,6 @@ fun OtherDevices(header: String, viewModel: MainViewModel) {
             }
         }
 
-
         Card(
             modifier = Modifier
                 .padding(top = 15.dp)
@@ -190,102 +145,187 @@ fun OtherDevices(header: String, viewModel: MainViewModel) {
                 containerColor = Utilities.background2
             )
         ) {
-            LazyColumn(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 15.dp, bottom = 15.dp)) {
-                itemsIndexed(viewModel.items) { i,data ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 15.dp, bottom = 15.dp)
+            ) {
 
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(bottom = 20.dp, top = 10.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(id = data.image),
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier
-                                .height(58.dp)
-                                .width(91.dp)
+                itemsIndexed(viewModel.items) { index, data ->
+
+                        DeviceRow(data, coroutineScope, viewModel, index,false)
+
+                        Divider(
+                            color = Utilities.background3,
+                            modifier = Modifier.padding(horizontal = 15.dp)
                         )
-                        Spacer(modifier = Modifier.width(20.dp))
-
-                        Column {
-
-                            Text(
-                                text =data.device_Type,
-                                color = Color.White,
-                                fontSize = 16.sp,
-                                fontFamily = Utilities.font,
-                            )
-                            Text(
-                                text = "Date Added :${data.date_Added}",
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                fontFamily = Utilities.font,
-                            )
-                            Text(
-                                text = "Last Watched :${data.last_Watched}",
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                fontFamily = Utilities.font,
-
-                                )
-                            Text(
-                                text = data.location,
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                fontFamily = Utilities.font,
-
-                                )
-
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
-
-
-                        IconButton(onClick = {
-                            viewModel.removeType("Single",i)
-
-                        })
-                        {
-                            Image(
-                                painter = painterResource(id = R.drawable.icon),
-                                contentDescription = null,
-                            )
-                        }
-
                     }
 
-                    Divider(
-                        color = Utilities.background3,
-                        modifier = Modifier.padding(horizontal = 15.dp)
-                    )
+            }
 
+            val bottomSheetState1 = viewModel.bottomSheetState.collectAsState()
+            if (bottomSheetState1.value) {
+                val typeValue = viewModel.type.collectAsState()
+
+                ModalBottomSheet(
+                    onDismissRequest = { viewModel.updateBottomSheetState(false) },
+                    sheetState = bottomSheetState,
+                    containerColor = Utilities.background2
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+
+                        val textValue = if (typeValue.value == "Single") "Remove Device" else "Remove All Devices"
+                        val waringText =  if (typeValue.value == "Single")
+                            "Are you sure you want to remove this device? It will be permanently delete from your device management."
+                        else
+                            "Are you sure you want to remove all devices? It will be permanently delete from your device management."
+
+                        Text(
+                            text = textValue ,
+                            modifier = Modifier
+                                .padding(bottom = 5.dp)
+                                .fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                            fontFamily = Utilities.font,
+                            fontSize = 24.sp,
+                            color = Color.White,
+                        )
+
+                        Text(
+                            text =waringText,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp),
+                            textAlign = TextAlign.Center,
+                            fontFamily = Utilities.font,
+                            fontSize = 14.sp,
+                            color = Color.White
+                        )
+
+                        Spacer(modifier = Modifier.height(15.dp))
+
+                        Button(
+
+                            onClick = {
+                                if (typeValue.value == "All") {
+                                    viewModel.removeItem(type ="All",0)
+                                    viewModel.updateBottomSheetState(false)
+                                } else {
+                                    viewModel.removeItem("Single", viewModel.index.value)
+                                    viewModel.updateBottomSheetState(false)
+                                }
+
+
+
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+
+                            modifier = Modifier
+                                .padding(horizontal = 15.dp, vertical = 5.dp)
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(0.dp)
+                        ) {
+                            Text(
+                                color = Color.White,
+                                text = "Confirm",
+                                fontSize = 14.sp,
+                                fontFamily = Utilities.font
+                            )
+                        }
+
+                        Text(
+                            color = Color.White,
+                            text = "Cancel",
+                            fontSize = 14.sp,
+                            fontFamily = Utilities.font,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(bottom = 20.dp, top = 5.dp)
+                                .clickable {
+                                    viewModel.updateBottomSheetState(false)
+                                },
+                            textDecoration = TextDecoration.Underline
+                        )
+
+                    }
                 }
             }
         }
     }
-
-
-
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DeviceItems(
+private fun DeviceRow(
     data: Model,
-    removeDevice: Boolean,
-    index: Int,
-    items: List<Model>,
-    viewModel: MainViewModel
-
+    coroutineScope: CoroutineScope?= null,
+    viewModel: MainViewModel?= null,
+    index: Int?= null,
+    isCurrentDevice :Boolean
 ) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(bottom = 20.dp, top = 10.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = data.image),
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier
+                .height(58.dp)
+                .width(91.dp)
+        )
+        Spacer(modifier = Modifier.width(20.dp))
 
-    val skipPartiallyExpanded by remember { mutableStateOf(false) }
-    val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = skipPartiallyExpanded
-    )
-    var remove by remember {
-        mutableStateOf(removeDevice)
+        Column {
+
+            Text(
+                text = data.device_Type,
+                color = Color.White,
+                fontSize = 16.sp,
+                fontFamily = Utilities.font,
+            )
+            Text(
+                text = "Date Added :${data.date_Added}",
+                color = Color.White,
+                fontSize = 12.sp,
+                fontFamily = Utilities.font,
+            )
+            Text(
+                text = "Last Watched :${data.last_Watched}",
+                color = Color.White,
+                fontSize = 12.sp,
+                fontFamily = Utilities.font,
+
+                )
+            Text(
+                text = data.location,
+                color = Color.White,
+                fontSize = 12.sp,
+                fontFamily = Utilities.font,
+
+                )
+
+        }
+        Spacer(modifier = Modifier.weight(1f))
+
+
+        if (!isCurrentDevice) {
+            IconButton(
+                onClick = {
+                    coroutineScope?.launch {
+                        viewModel?.updateBottomSheetState(true)
+                        viewModel?.updateIndex("Single", index!!)
+
+                    }
+                }
+            )
+            {
+                Image(
+                    painter = painterResource(id = R.drawable.icon),
+                    contentDescription = null,
+                )
+            }
+
+        }
     }
-
 }

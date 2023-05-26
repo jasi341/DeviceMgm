@@ -48,129 +48,15 @@ class MainActivity : ComponentActivity() {
                     val mainViewModel = viewModel<MainViewModel>()
 
                     FullView(mainViewModel)
+                    //BottomSheetRemove3(mainViewModel)
                 }
             }
         }
     }
 }
-
-
-
-
-
-
 
 fun toast(context: Context, message: String) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
-
-
-
-@Composable
-fun BottomSheetRemove3(viewModel: MainViewModel) {
-    val items = remember { mutableStateListOf<Model>() }
-    items.addAll(listDevice)
-
-    val coroutineScope = rememberCoroutineScope()
-
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(items) { item ->
-                Text(text = item.device_Type, color = Color.White)
-            }
-        }
-
-        Row(modifier = Modifier.weight(1f)) {
-            Button(
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    Log.d("TAG12", "BottomSheetRemove: ${viewModel.type.value}")
-                    viewModel.removeType("All", 0)
-                    if (viewModel.type.value == "All") {
-                        items.clear()
-                    }
-                    Log.d("TAG123", "BottomSheetRemove: ${viewModel.type.value}")
-                }
-            ) {
-                Text(text = "state.value")
-            }
-
-            Button(
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    Log.d("TAG1234", "BottomSheetRemove: ${viewModel.type.value}")
-                    val currentType = viewModel.type.value
-                    val currentIndex = viewModel.index.value
-                    coroutineScope.launch {
-                        viewModel.removeType("Single", 0)
-                        if (currentType == "Single") {
-                            items.removeAt(currentIndex)
-                        }
-                        Log.d("TAG12345", "BottomSheetRemove: ${viewModel.type.value}")
-                    }
-                }
-            ) {
-                Text(text = "state.value")
-            }
-        }
-    }
-}
-
-
-@Composable
-fun BottomSheetRemove4(viewModel: MainViewModel) {
-    val coroutineScope = rememberCoroutineScope()
-
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(viewModel.items) { item ->
-                Text(text = item.device_Type, color = Color.White)
-            }
-        }
-
-        Row(modifier = Modifier.weight(1f)) {
-            Button(
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    Log.d("TAG12", "BottomSheetRemove: ${viewModel.type.value}")
-                    viewModel.removeType("All", 0)
-                    Log.d("TAG123", "BottomSheetRemove: ${viewModel.type.value}")
-                }
-            ) {
-                Text(text = "state.value")
-            }
-
-            Button(
-                modifier = Modifier.weight(1f),
-                onClick = {
-                    Log.d("TAG1234", "BottomSheetRemove: ${viewModel.type.value}")
-                    val currentType = viewModel.type.value
-                    val currentIndex = viewModel.index.value
-                    coroutineScope.launch {
-                        viewModel.removeType("Single", currentIndex)
-                        Log.d("TAG12345", "BottomSheetRemove: ${viewModel.type.value}")
-                    }
-                }
-            ) {
-                Text(text = "state.value")
-            }
-        }
-    }
-}
-
-
-
-
-
-
-
-
-
 
 
