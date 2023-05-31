@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -58,7 +59,7 @@ fun FullView(viewModel: MainViewModel) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CurrentDevice(device: Model = Model(R.drawable.outline_laptop_24, "Web Browser", "10/4/22", "2023-05-18T12:20:48.950Z", "Rigewood,United States",true)) {
+fun CurrentDevice(device: Model = Model(R.drawable.desktop, "Web Browser", "10/4/22", "2023-05-18T12:20:48.950Z", "Rigewood,United States",true)) {
 
     Card(
         modifier = Modifier
@@ -88,6 +89,7 @@ fun OtherDevices(header: String, viewModel: MainViewModel) {
     val bottomSheetState = rememberModalBottomSheetState(
 
     )
+    val bottomSheetState1 = viewModel.bottomSheetState.collectAsState()
 
 
     Column {
@@ -168,14 +170,14 @@ fun OtherDevices(header: String, viewModel: MainViewModel) {
 
             }
 
-            val bottomSheetState1 = viewModel.bottomSheetState.collectAsState()
+
             if (bottomSheetState1.value) {
                 val typeValue = viewModel.type.collectAsState()
 
                 ModalBottomSheet(
                     onDismissRequest = { viewModel.updateBottomSheetState(false) },
                     sheetState = bottomSheetState,
-                    containerColor = Utilities.background2
+                    containerColor = Utilities.background2,
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -280,7 +282,7 @@ private fun DeviceRow(
                 .height(58.dp)
                 .width(91.dp)
         )
-        Spacer(modifier = Modifier.width(20.dp))
+        Spacer(modifier = Modifier.width(2.dp))
 
         Column {
             val CurrentDate = data.updateDate
