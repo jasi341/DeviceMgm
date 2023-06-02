@@ -57,7 +57,6 @@ fun FullView(viewModel: MainViewModel) {
 }
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CurrentDevice(device: Model = Model(R.drawable.desktop, "Web Browser", "10/4/22", "2023-05-18T12:20:48.950Z", "Rigewood,United States",true)) {
 
@@ -261,7 +260,6 @@ fun OtherDevices(header: String, viewModel: MainViewModel) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun DeviceRow(
     data: Model,
